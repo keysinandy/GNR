@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 const { program } = require('commander')
-
+const { printLog } = require('../libs/log')
 //输出版本号
-program.version(require('../package').version, '-v')
+program.version(printLog(require('../package').version), '-v')
 
-//获取帮助
-program.option('-h, --help', 'output help')
-
-if (program.help) {
-  console.log("output help")
-}
+program.command('create','create a react project')
 
 program.parse(process.argv);

@@ -4,24 +4,10 @@ const { printInfo} = require('./log')
 // 设置问题
 const questions = [
   {
-    type: 'rawlist',
-    name: 'style',
-    message: printInfo('choose your style language'),
-    choices: [
-      {
-        name: 'sass',
-        value: 'sass'
-      },
-      {
-        name: 'less',
-        value: 'less'
-      },
-      {
-        name: 'none',
-        value: 'none'
-      },
-    ],
-    default: 0
+    type: 'input',
+    name: 'author',
+    message: printInfo('input your name email here'),
+    default: ""
   },
   {
     type: 'confirm',

@@ -35,11 +35,14 @@ const removeDir = (dir, direct) => {
  *
  * 将正常文件与模版文件合并输出到_ejs_build_目录下
  */
-const generateEjs = (rootDir, filename, options) => {
+const generateEjs = (filename, output, options) => {
   if (typeof filename != 'string') {
     throw new Error(printError(`${filename} is not string`))
   }
-  fs.mkdirSync(path.resolve(rootDir, '_ejs_build_'))
+  if (!fs.existsSync(output)) {
+    fs.mkdirSync(output)
+  }
+
   const o = path.parse(filename)
   const { filePath } = options
   try {
@@ -51,13 +54,13 @@ const generateEjs = (rootDir, filename, options) => {
     o.ext = '.ejs'
     o.dir += '/ejs'
     const extraFile = fileContent(path.format(o))
-    let output = Object.assign(baseFile, extraFile);
+    let outputData = Object.assign(baseFile, extraFile);
     o.name = baseName
 
     let fo = Object.create(null)
-    fo.data = output
+    fo.data = outputData
     fo.path = filePath
-    fs.writeFileSync(path.resolve(rootDir, `_ejs_build_/${o.name}${o.ext}`), JSON.stringify(fo, null, 2))
+    fs.writeFileSync(path.resolve(output, `${o.name}${o.ext}`), JSON.stringify(fo, null, 2))
   } catch (error) {
     throw new Error(error)
   }
@@ -77,15 +80,15 @@ const fileContent = (filename) => {
  */
 
 const compileEjs = (rootDir, ejsData) => {
-  let ejsPath = path.resolve(rootDir, '_ejs_build_')
+
   try {
-    let d = fs.readdirSync(ejsPath, {
+    let d = fs.readdirSync(rootDir, {
       withFileTypes: true
     })
     d.forEach(item => {
       if (item.isFile() && /\.ejs$/.test(item.name) ) {
         //处理文件
-        let data = fs.readFileSync(path.resolve(ejsPath,item.name), {
+        let data = fs.readFileSync(path.resolve(rootDir,item.name), {
           encoding: 'utf-8'
         })
         let result = JSON.parse(data);
@@ -93,7 +96,7 @@ const compileEjs = (rootDir, ejsData) => {
           transfer(ejs.render(JSON.stringify(result, null, 2) , ejsData))
         }
       } else if (item.isDirectory()) {
-        compileEjs(path.resolve(ejsPath, item.name), ejsData)
+        compileEjs(path.resolve(rootDir, item.name), ejsData)
       }
     })
   } catch (error) {

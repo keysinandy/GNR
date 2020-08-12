@@ -4,7 +4,7 @@ const printInfo = (message) => {
   return chalk.hex('#87d068')(message)
 }
 const printError = (message) => {
-  return chalk.hex('#cd201f')(message)
+  return chalk.hex('#ee6b5f')(message)
 }
 const printWarn = (message) => {
   return chalk.hex('#f0af41')(message)

@@ -7,7 +7,13 @@ const questions = [
     type: 'input',
     name: 'author',
     message: printInfo('input your name and email here'),
-    default: ""
+    default: "your-name <your-email-address@gmail.com>"
+  },
+  {
+    type: 'input',
+    name: 'repository',
+    message: printInfo('input your repository here'),
+    default:"git@github.com:your-username/project-name.git"
   },
   {
     type: 'version',

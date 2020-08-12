@@ -5,6 +5,7 @@ const cmd = require('../libs/cmd')
 const { printError, printInfo, printLog } = require('../libs/log')
 const spinner = require('../libs/loading')
 const { copyDir, generateEjs, compileEjs, removeDir } = require('../libs/utils')
+
 program
 .name("gnr create")
 .usage('your-project-name>').parse(process.argv)
@@ -21,9 +22,11 @@ if (!projectName) {  // project-name 必填
 const checkProject = () => {
   const dir = fs.readdirSync(process.cwd())
   if (dir.includes(projectName)) {
-    printError(`${projectName} is already in current dir`)
+    console.log(printError(`${projectName} is already in current dir`))
+    return false;
+  } else {
+    return true
   }
-  return;
 }
 
 //进行创建
@@ -36,27 +39,30 @@ const create = async () => {
   const spin = spinner()
   spin.start(printLog('starting generate files...'))
   try {
-    //TODO: 1.复制目录 2.编译成ejs文件 3.把ejs覆盖为相应的文件 4.删除对应文件夹
+    //1.复制目录
     copyDir(path.resolve(__dirname, '../pkg'), rootDir, true)
+    //2.读取配置文件
     const data = fs.readFileSync(path.resolve(__dirname, 'config.json'), {encoding: 'utf-8'})
     let config = JSON.parse(data)
+    //3.编译成ejs文件
     let filesCompile = config.filesCompile;
     filesCompile.forEach(item => {
-      generateEjs(rootDir, path.resolve(rootDir, item), {filePath: path.resolve(rootDir, item)})
+      generateEjs(path.resolve(rootDir, item), path.resolve(rootDir, '_ejs_build_'), {filePath: path.resolve(rootDir, item)})
     });
-    //TODO:不同文件名，对应不同的ejsData
-    compileEjs(rootDir, ejsData)
+    //4.把ejs覆盖为相应的文件
+    //TODO:修改ejsData,使其对应文件
+    compileEjs(path.resolve(rootDir, '_ejs_build_'), ejsData)
+    //5.删除对应文件夹
     let dirRemove = config.dirRemove
     dirRemove.forEach(item => {
       removeDir(path.resolve(rootDir, item), true)
     })
-    spin.succeed('success!')
+    spin.succeed(`create ${projectName} successful!`)
+    console.log('\n', printInfo(`cd ${projectName} & yarn to start this project`))
   } catch (error) {
     //移除文件夹下的所有内容
-    // printError(error)
-    console.log(error)
     removeDir(rootDir, true)
-    spin.fail('error')
+    spin.fail('error, error to create project')
   }
 }
 
@@ -68,5 +74,7 @@ const resolveResult = (result) => {
   })
   return data
 }
-checkProject()
-create()
+if (checkProject()) {
+  create()
+}
+

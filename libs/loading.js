@@ -1,7 +1,7 @@
 const ora = require('ora');
 const { printLog } = require('./log')
-const spinner = ora({
-  text: printLog('download from remote repo...'),
+const spinner = (text) => ora({
+  text: printLog(String(text)),
   interval: 80
 })
 

@@ -6,21 +6,15 @@ const questions = [
   {
     type: 'input',
     name: 'author',
-    message: printInfo('input your name email here'),
+    message: printInfo('input your name and email here'),
     default: ""
   },
   {
-    type: 'confirm',
-      name: 'useRedux',
-      message: printInfo('use redux?'),
-      default: true
+    type: 'version',
+    name: 'version',
+    message: printInfo('your project version'),
+    default: "0.0.1"
   },
-  {
-    type: 'confirm',
-      name: 'useRouter',
-      message: printInfo('use react-router?'),
-      default: true
-  }
 ]
 
  const select = async () => {

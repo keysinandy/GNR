@@ -2,6 +2,7 @@ const inquirer = require('inquirer')
 const { printInfo} = require('./log')
 
 // 设置问题
+// TODO:检查格式
 const questions = [
   {
     type: 'input',

@@ -38,7 +38,7 @@ const checkProject = () => {
 const create = async () => {
   //获取选项结果
   const chooseResult = await cmd()
-  chooseResult.unshift({ projectName: projectName }, {fast: program.fast})
+  chooseResult.unshift({ projectName: projectName }, {fast: program.fast ? true : false})
   let ejsData = resolveResult(chooseResult)
   const rootDir = path.resolve(process.cwd(), projectName)
   const spin = spinner()
@@ -54,8 +54,8 @@ const create = async () => {
     //3.编译成ejs文件
     let filesCompile = config.filesCompile;
     filesCompile.forEach(item => {
-      const {filename, output, ejs, merge } = item
-      generateEjs(path.resolve(rootDir, filename), path.resolve(rootDir, '_ejs_build_'), {output: path.resolve(rootDir, outputPath), ejs: path.resolve(rootDir, ejs), merge})
+      const {filename, outputPath, ejs, merge } = item
+      generateEjs(path.resolve(rootDir, filename), path.resolve(rootDir, '_ejs_build_'), {outputPath: path.resolve(rootDir, outputPath), ejsFile: path.resolve(rootDir, ejs), merge} ,ejsData)
     });
     //4.把ejs覆盖为相应的文件
     //TODO:修改ejsData,使其对应文件

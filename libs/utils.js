@@ -35,40 +35,30 @@ const removeDir = (dir, direct) => {
  *
  * 将正常文件与模版文件合并输出到_ejs_build_目录下
  */
-const generateEjs = (filename, output, options) => {
+const generateEjs = (filename, output, options, ejsData) => {
   if (typeof filename != 'string') {
     throw new Error(printError(`${filename} is not string`))
   }
   if (!fs.existsSync(output)) {
     fs.mkdirSync(output)
   }
+  const { outputPath, ejsFile, merge } = options
+  const o = path.parse(ejsFile)
 
-  const o = path.parse(filename)
-  const { outputPath, ejs, merge } = options
-  let baseName = o.name
-  if (/\.json$/.test(o.ext)) {
-    o.name+='_JSON_'
-  }
   try {
+    let fo = Object.create(null)
     if (merge) {
-      const baseFile = fileContent(filename)
-      o.base = ''
-      o.ext = '.ejs'
-      o.dir = ejs
-      const extraFile = fileContent(path.format(o))
-      let outputData = Object.assign(baseFile, extraFile);
-      o.name = baseName
-
-      let fo = Object.create(null)
+      const baseContent = fileContent(filename)
+      let extraData = fs.readFileSync(ejsFile, {encoding: 'utf-8'})
+      const extraContent = JSON.parse(ejs.render(extraData, ejsData))
+      let outputData = Object.assign(baseContent, extraContent);
       fo.data = outputData
-      fo.path = outputPath
-      fs.writeFileSync(path.resolve(output, `${o.name}${o.ext}`), JSON.stringify(fo, null, 2))
+      fo.outputPath = outputPath
     } else {
-      let fo = Object.create(null)
-      fo.data = fs.readFileSync(filename, {encoding: 'utf-8'})
-      fo.path = outputPath
-      fs.writeFileSync(path.resolve(output, `${o.name}${o.ext}`), JSON.stringify(fo, null, 2))
+      fo.data = fs.readFileSync(ejsFile, {encoding: 'utf-8'})
+      fo.outputPath = outputPath
     }
+    fs.writeFileSync(path.resolve(output, `${o.name}${o.ext}`), JSON.stringify(fo, null, 2))
   } catch (error) {
     throw new Error(error)
   }
@@ -79,7 +69,7 @@ const fileContent = (filename) => {
     let data = fs.readFileSync(filename, {encoding: 'utf-8'})
     return JSON.parse(data)
   } catch (error) {
-    Object.create(null)
+    return Object.create(null)
   }
 }
 /**
@@ -88,7 +78,6 @@ const fileContent = (filename) => {
  */
 
 const compileEjs = (rootDir, ejsData) => {
-
   try {
     let d = fs.readdirSync(rootDir, {
       withFileTypes: true
@@ -96,10 +85,10 @@ const compileEjs = (rootDir, ejsData) => {
     d.forEach(item => {
       if (item.isFile() && /\.ejs$/.test(item.name) ) {
         //处理文件
-        let data = fs.readFileSync(path.resolve(rootDir,item.name), {
+        let data = fs.readFileSync(path.resolve(rootDir, item.name), {
           encoding: 'utf-8'
         })
-        transfer(ejs.render(data, ejsData), /_JSON_/.test(item.name))
+        transfer(ejs.render(data, ejsData))
       } else if (item.isDirectory()) {
         compileEjs(path.resolve(rootDir, item.name), ejsData)
       }
@@ -109,15 +98,15 @@ const compileEjs = (rootDir, ejsData) => {
   }
 }
 
-const transfer = (item, isJSON) => {
-  if (isJSON) {
-    item = JSON.parse(item)
-    const { data, path } = item
-  }
+const transfer = (item) => {
 
+  const { data, outputPath } = JSON.parse(item)
   try {
-    let str = JSON.stringify(data, null, 2)
-    fs.writeFileSync(path, str, {encoding:'utf-8'})
+    let str = data
+    if (typeof data != 'string') {
+      str = JSON.stringify(data, null, 2)
+    }
+    fs.writeFileSync(outputPath, str, {encoding:'utf-8'})
   } catch (error) {
     throw new Error(error)
   }

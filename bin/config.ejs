@@ -1,10 +1,18 @@
 {
-  "filesCompile": [{
-    "filename": "package.json",
-    "output": "package.json",
-    "ejs": "ejs/package.ejs"
-    "merge": true,
-  }],
+  "filesCompile": [
+    {
+      "filename": "package.json",
+      "outputPath": "package.json",
+      "ejs": "ejs/package.ejs",
+      "merge": true
+    },
+    {
+      "filename": "src/app.js",
+      "outputPath": "src/app.js",
+      "ejs": "ejs/app.ejs",
+      "merge": false
+    }
+  ],
   "dirRemove": [
   "_ejs_build_",
   "ejs"

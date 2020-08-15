@@ -1,4 +1,0 @@
-{
-  "filesCompile": ["package.json"],
-  "dirRemove": ["_ejs_build_", "ejs"]
-}

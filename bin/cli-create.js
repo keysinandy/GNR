@@ -49,12 +49,13 @@ const create = async () => {
     spin.succeed(printLog('download file success'))
     spin.start(printLog('compile files...'))
     //2.读取配置文件
-    const configStr = await ejs.renderFile(path.resolve(__dirname, 'config.json'), ejsData, {async: true})
+    const configStr = await ejs.renderFile(path.resolve(__dirname, 'config.ejs'), ejsData, {async: true})
     let config = JSON.parse(configStr)
     //3.编译成ejs文件
     let filesCompile = config.filesCompile;
     filesCompile.forEach(item => {
-      generateEjs(path.resolve(rootDir, item), path.resolve(rootDir, '_ejs_build_'), {filePath: path.resolve(rootDir, item)})
+      const {filename, output, ejs, merge } = item
+      generateEjs(path.resolve(rootDir, filename), path.resolve(rootDir, '_ejs_build_'), {output: path.resolve(rootDir, outputPath), ejs: path.resolve(rootDir, ejs), merge})
     });
     //4.把ejs覆盖为相应的文件
     //TODO:修改ejsData,使其对应文件

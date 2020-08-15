@@ -1,0 +1,18 @@
+{
+  "filesCompile": [{
+    "filename": "package.json",
+    "output": "package.json",
+    "ejs": "ejs/package.ejs"
+    "merge": true,
+  }],
+  "dirRemove": [
+  "_ejs_build_",
+  "ejs"
+  <% if (!fast) { %>
+    ,
+    "src/page",
+    "src/routes",
+    "src/store"
+  <% } %>
+  ]
+}

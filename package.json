@@ -1,13 +1,13 @@
 {
   "name": "generate-new-react",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node ./bin/cli.js"
+    "start": "node ./bin/gnr.js"
   },
   "bin": {
-    "gnr": "./bin/cli.js"
+    "gnr": "./bin/gnr.js"
   },
   "dependencies": {
     "chalk": "^4.1.0",

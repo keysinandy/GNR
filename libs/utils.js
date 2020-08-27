@@ -13,7 +13,7 @@ function copyDir(src, dest, direct) {
   if (fs.existsSync(src)) {
     child_process.spawnSync('cp', ['-r', src, dest])
   } else {
-    throw new Error(error)
+    throw new Error(`copyDir failed ${src} not exist`)
   }
 }
 
@@ -26,7 +26,7 @@ const removeDir = (dir, direct) => {
   if (fs.existsSync(dir)) {
     child_process.spawnSync('rm', ['-rf', dir])
   } else {
-    throw new Error(error)
+    throw new Error(`removeDir failed ${dir} not exist`)
   }
 }
 

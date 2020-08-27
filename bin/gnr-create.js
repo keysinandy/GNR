@@ -6,9 +6,9 @@ const download = require('download-git-repo')
 const cmd = require('../libs/cmd')
 const { printError, printInfo, printLog } = require('../libs/log')
 const spinner = require('../libs/loading')
-const { copyDir, generateEjs, compileEjs, removeDir } = require('../libs/utils')
+const { generateEjs, compileEjs, removeDir } = require('../libs/utils')
 
-const remoteRepo = 'https://github.com:keysinandy/webpack-react#template'
+const remoteRepo = fs.readFileSync(path.resolve(__dirname, '../repo') , {encoding:'utf-8'})
 
 program
 .name("gnr create")
@@ -69,7 +69,12 @@ const create = async () => {
     console.log('\n', printInfo(`cd ${projectName} & yarn to start this project`))
   } catch (error) {
     //移除文件夹下的所有内容
-    removeDir(rootDir, true)
+    try {
+      removeDir(rootDir, true)
+    } catch (error) {
+
+    }
+    console.log(error)
     spin.fail(printError(error + '\n' + 'error to create project'))
   }
 }

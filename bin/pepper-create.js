@@ -1,17 +1,16 @@
 const program = require('commander')
 const fs = require('fs')
 const path = require('path')
-const ejs = require('ejs')
 const download = require('download-git-repo')
 const cmd = require('../libs/cmd')
 const { printError, printInfo, printLog } = require('../libs/log')
 const spinner = require('../libs/loading')
-const { generateEjs, compileEjs, removeDir } = require('../libs/utils')
+const { removeDir } = require('../libs/utils')
 
 const remoteRepo = fs.readFileSync(path.resolve(__dirname, '../repo') , {encoding:'utf-8'})
 
 program
-.name("gnr create")
+.name("pepper create")
 .option('-f --fast', 'create a quick start project')
 .usage('your-project-name>').parse(process.argv).parseOptions(process.argv)
 
@@ -37,9 +36,13 @@ const checkProject = () => {
 //进行创建
 const create = async () => {
   //获取选项结果
-  const chooseResult = await cmd()
-  chooseResult.unshift({ projectName: projectName }, {fast: program.fast ? true : false})
-  let ejsData = resolveResult(chooseResult)
+  let chooseResult = await cmd()
+  chooseResult.unshift({ projectName: projectName })
+  let result = {}
+  chooseResult.forEach(data => {
+    result = Object.assign(result, data)
+  })
+
   const rootDir = path.resolve(process.cwd(), projectName)
   const spin = spinner()
   spin.start(printLog('download file from remote...'))
@@ -48,23 +51,10 @@ const create = async () => {
     await downloadRepo(remoteRepo, rootDir)
     spin.succeed(printLog('download file success'))
     spin.start(printLog('compile files...'))
-    //2.读取配置文件
-    const configStr = await ejs.renderFile(path.resolve(__dirname, 'config.ejs'), ejsData, {async: true})
-    let config = JSON.parse(configStr)
-    //3.编译成ejs文件
-    let filesCompile = config.filesCompile;
-    filesCompile.forEach(item => {
-      const {filename, outputPath, ejs, merge } = item
-      generateEjs(path.resolve(rootDir, filename), path.resolve(rootDir, '_ejs_build_'), {outputPath: path.resolve(rootDir, outputPath), ejsFile: path.resolve(rootDir, ejs), merge} ,ejsData)
-    });
-    //4.把ejs覆盖为相应的文件
-    //TODO:修改ejsData,使其对应文件
-    compileEjs(path.resolve(rootDir, '_ejs_build_'), ejsData)
-    //5.删除对应文件夹
-    let dirRemove = config.dirRemove
-    dirRemove.forEach(item => {
-      removeDir(path.resolve(rootDir, item), true)
-    })
+
+    const initiation = require(path.resolve(rootDir,'config/config.js'))
+
+    initiation(result)
     spin.succeed(printLog(`create ${projectName} successful!`))
     console.log('\n', printInfo(`cd ${projectName} & yarn to start this project`))
   } catch (error) {
@@ -77,15 +67,6 @@ const create = async () => {
     console.log(error)
     spin.fail(printError(error + '\n' + 'error to create project'))
   }
-}
-
-const resolveResult = (result) => {
-
-  let data = Object.create(null)
-  result.map(v => {
-    data = Object.assign(data,v)
-  })
-  return data
 }
 
 const downloadRepo = async (source, dist) => {

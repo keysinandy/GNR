@@ -17,10 +17,22 @@ const questions = [
     default:"git@github.com:your-username/project-name.git"
   },
   {
-    type: 'version',
+    type: 'input',
     name: 'version',
-    message: printInfo('your project version'),
+    message: printInfo('input your project version'),
     default: "0.0.1"
+  },
+  {
+    type: 'confirm',
+    name: 'useTypescript',
+    message: printInfo('do you need typescript support?'),
+    default: false
+  },
+  {
+    type: 'confirm',
+    name: 'fast',
+    message: printInfo('faster to start a new project'),
+    default: false
   },
 ]
 
@@ -31,10 +43,13 @@ const questions = [
   while (index < len) {
     const result = await inquirer.prompt(questions[index])
     answers.push(result)
+    if (result.useTypescript) {
+      break
+    }
     index++
   }
   return answers
 }
 
 module.exports = select
-// select().then(console.log)
+
